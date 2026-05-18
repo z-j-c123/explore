@@ -29,7 +29,7 @@ npm run start:dev
 
 1. 将本目录推送到 GitHub（仓库根目录即本项目，或把 `prom` 设为 Vercel 的 Root Directory）。
 
-2. 在 [Vercel](https://vercel.com) 导入项目，**Framework Preset** 选 **Other** 或让 Vercel 自动识别 NestJS。
+2. 在 [Vercel](https://vercel.com) 导入项目，让 Vercel **自动识别 NestJS**（入口为 `src/main.ts`）。不要选 Other，也不要在 `vercel.json` 里写 `"framework": null`。
 
 3. 添加 **Postgres**（Storage → Create Database → Postgres），会自动设置 `DATABASE_URL`。
 
