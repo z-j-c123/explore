@@ -15,22 +15,63 @@ const filterRetry = $('#filter-retry');
 
 let editingId = null;
 let debounceTimer;
+let hoverRating = null;
 
-function renderStars() {
+function updateRatingHint(value) {
+  const hint = $('#rating-hint');
+  if (hint) hint.textContent = `${value} 分`;
+}
+
+// --- 星星组件：一次性构建，只更新样式 ---
+let starButtons = [];
+
+function initStars() {
   ratingStars.innerHTML = '';
   for (let i = 1; i <= 5; i++) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = '★';
+    btn.setAttribute('aria-label', `${i} 分`);
     btn.dataset.value = String(i);
-    if (Number(ratingInput.value) >= i) btn.classList.add('active');
+    btn.textContent = '☆';
+
+    // 点击事件可以保留，也可以去掉（因为悬停已经能修改评分）
     btn.addEventListener('click', () => {
       ratingInput.value = String(i);
+      hoverRating = null;
       renderStars();
     });
+
+    // 悬停即选中
+    btn.addEventListener('mouseenter', () => {
+      ratingInput.value = String(i);
+      hoverRating = null; // 不再使用 hoverRating，直接同步
+      renderStars();
+    });
+
     ratingStars.appendChild(btn);
   }
+  starButtons = Array.from(ratingStars.children);
 }
+
+function renderStars() {
+  const selected = Number(ratingInput.value);
+  const highlight = hoverRating !== null ? hoverRating : selected;
+
+  for (let i = 0; i < starButtons.length; i++) {
+    const btn = starButtons[i];
+    const value = i + 1;
+    const isActive = value <= highlight;
+    btn.textContent = isActive ? '★' : '☆';
+    btn.classList.toggle('active', isActive);
+  }
+
+  updateRatingHint(highlight);
+}
+
+ratingStars.addEventListener('mouseleave', () => {
+  hoverRating = null;
+  renderStars();
+});
 
 function starsText(n) {
   return '★'.repeat(n) + '☆'.repeat(5 - n);
@@ -126,8 +167,12 @@ async function loadShops() {
       </div>
     `;
 
-    li.querySelector('[data-edit]').addEventListener('click', () => startEdit(shop));
-    li.querySelector('[data-del]').addEventListener('click', () => removeShop(shop.id));
+    li.querySelector('[data-edit]').addEventListener('click', () =>
+      startEdit(shop),
+    );
+    li.querySelector('[data-del]').addEventListener('click', () =>
+      removeShop(shop.id),
+    );
     li.addEventListener('click', (e) => {
       if (e.target.closest('button')) return;
       showDetail(shop);
@@ -147,6 +192,7 @@ function resetForm() {
   editingId = null;
   form.reset();
   ratingInput.value = '3';
+  hoverRating = null;
   renderStars();
   preview.hidden = true;
   preview.src = '';
@@ -162,6 +208,7 @@ function startEdit(shop) {
   $('#platform').value = shop.platform || '';
   $('#address').value = shop.address || '';
   ratingInput.value = String(shop.rating);
+  hoverRating = null;
   renderStars();
   $('#notes').value = shop.notes || '';
   $('#wouldRetry').checked = shop.wouldRetry;
@@ -232,7 +279,9 @@ uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   uploadZone.classList.add('dragover');
 });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('dragleave', () =>
+  uploadZone.classList.remove('dragover'),
+);
 uploadZone.addEventListener('drop', (e) => {
   e.preventDefault();
   uploadZone.classList.remove('dragover');
@@ -263,6 +312,7 @@ function scheduleLoad() {
 searchInput.addEventListener('input', scheduleLoad);
 filterRating.addEventListener('change', () => loadShops().catch(console.error));
 filterRetry.addEventListener('change', () => loadShops().catch(console.error));
+initStars();
 
 renderStars();
 refresh().catch(async (err) => {
