@@ -6,19 +6,13 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ShopsModule } from './shops/shops.module';
 
-const isVercel = Boolean(process.env.VERCEL);
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ...(isVercel
-      ? []
-      : [
-          ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'public'),
-            exclude: ['/api/{*path}'],
-          }),
-        ]),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      exclude: ['/api/{*path}'],
+    }),
     PrismaModule,
     HealthModule,
     ShopsModule,
