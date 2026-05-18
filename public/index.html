@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>探店备忘 · 不再踩雷</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow"></div>
+    <header class="header">
+      <div class="brand">
+        <span class="brand-icon">🍜</span>
+        <div>
+          <h1>探店备忘</h1>
+          <p>记录吃过的店，下次点餐前先查一眼</p>
+        </div>
+      </div>
+      <div class="stats" id="stats">
+        <div class="stat"><span id="stat-total">0</span><label>已记录</label></div>
+        <div class="stat"><span id="stat-avg">0</span><label>均分</label></div>
+        <div class="stat warn"><span id="stat-black">0</span><label>雷区 ≤2 分</label></div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel form-panel">
+        <h2 id="form-title">添加店铺</h2>
+        <form id="shop-form">
+          <input type="hidden" id="shop-id" />
+          <label class="field">
+            <span>店名 *</span>
+            <input type="text" id="name" required maxlength="200" placeholder="如：老张牛肉面" />
+          </label>
+          <div class="row">
+            <label class="field">
+              <span>平台</span>
+              <select id="platform">
+                <option value="">未选择</option>
+                <option value="美团">美团</option>
+                <option value="饿了么">饿了么</option>
+                <option value="大众点评">大众点评</option>
+                <option value="抖音">抖音</option>
+                <option value="线下">线下</option>
+                <option value="其他">其他</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>地址 / 商圈</span>
+              <input type="text" id="address" maxlength="500" placeholder="可选" />
+            </label>
+          </div>
+          <label class="field">
+            <span>评分 *</span>
+            <div class="rating-input" id="rating-stars"></div>
+            <input type="hidden" id="rating" value="3" />
+          </label>
+          <label class="field">
+            <span>备注</span>
+            <textarea
+              id="notes"
+              rows="3"
+              maxlength="2000"
+              placeholder="踩雷原因、推荐菜、配送慢、卫生问题…"
+            ></textarea>
+          </label>
+          <label class="field checkbox">
+            <input type="checkbox" id="wouldRetry" />
+            <span>愿意再去 / 再点</span>
+          </label>
+          <div class="field">
+            <span>店铺截图</span>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="image" accept="image/*" hidden />
+              <p>点击或拖拽上传美团等平台截图</p>
+              <img id="preview" alt="" hidden />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary" id="submit-btn">保存记录</button>
+            <button type="button" class="btn ghost" id="cancel-btn" hidden>取消编辑</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="list-toolbar">
+          <input type="search" id="search" placeholder="搜索店名、备注、地址…" />
+          <select id="filter-rating">
+            <option value="">全部评分</option>
+            <option value="1">仅 1 分（大雷）</option>
+            <option value="2">≤2 分（避雷）</option>
+            <option value="3">≥3 分</option>
+            <option value="4">≥4 分（推荐）</option>
+          </select>
+          <label class="filter-check">
+            <input type="checkbox" id="filter-retry" />
+            仅愿意再去
+          </label>
+        </div>
+        <ul id="shop-list" class="shop-list"></ul>
+        <p id="empty-state" class="empty" hidden>还没有记录，先把踩过雷的店记下来吧</p>
+      </section>
+    </main>
+
+    <dialog id="detail-dialog">
+      <article id="detail-content"></article>
+      <form method="dialog">
+        <button class="btn ghost">关闭</button>
+      </form>
+    </dialog>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
