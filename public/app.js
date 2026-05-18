@@ -49,8 +49,15 @@ function cardClass(r) {
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message?.join?.() || err.message || res.statusText);
+    const text = await res.text();
+    let detail = res.statusText;
+    try {
+      const err = JSON.parse(text);
+      detail = err.message?.join?.() || err.message || err.error || detail;
+    } catch {
+      if (text && text.length < 200) detail = text;
+    }
+    throw new Error(`${res.status}: ${detail}`);
   }
   return res.json();
 }
@@ -258,7 +265,20 @@ filterRating.addEventListener('change', () => loadShops().catch(console.error));
 filterRetry.addEventListener('change', () => loadShops().catch(console.error));
 
 renderStars();
-refresh().catch((err) => {
+refresh().catch(async (err) => {
   console.error(err);
-  alert('加载失败，请确认数据库已配置并运行迁移。');
+  let hint = err.message || '未知错误';
+  try {
+    const health = await fetch('/api/health').then((r) => r.json());
+    console.log('health:', health);
+    if (!health.db) {
+      hint += `\n\n数据库: ${health.error || '未连接'}`;
+      if (!health.env?.hasDatabaseUrl) {
+        hint += '\n请在 Vercel 配置 DATABASE_URL（Neon Pooled 连接串）';
+      }
+    }
+  } catch {
+    hint += '\n\nAPI 无法访问，请检查 Vercel 部署日志';
+  }
+  alert(`加载失败：${hint}`);
 });

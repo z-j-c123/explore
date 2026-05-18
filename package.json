@@ -11,7 +11,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "build": "nest build",
-    "vercel-build": "prisma generate && prisma migrate deploy && nest build",
+    "vercel-build": "node scripts/vercel-build.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

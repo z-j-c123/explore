@@ -35,9 +35,17 @@ npm run start:dev
 
 4. （推荐）添加 **Blob** 存储，用于生产环境截图；会自动设置 `BLOB_READ_WRITE_TOKEN`。未配置时仅本地 `uploads` 可用，无持久化。
 
-5. 环境变量（若未自动注入）：
-   - `DATABASE_URL` — PostgreSQL 连接串
-   - `BLOB_READ_WRITE_TOKEN` — Vercel Blob 令牌（可选）
+5. 环境变量（在 Settings → Environment Variables，**不要用 .env.example 里的占位符**）：
+
+   | 变量 | 来源 |
+   |------|------|
+   | `DATABASE_URL` | Neon → **Pooled connection**（主机名含 `-pooler`） |
+   | `DIRECT_URL` | Neon → **Direct connection**（无 `-pooler`） |
+   | `BLOB_READ_WRITE_TOKEN` | Vercel Storage → Blob（可选，上传截图需要） |
+
+   若构建报 `Can't reach database server at host:5432`，说明 `DATABASE_URL` 仍是占位符，请换成 Neon 真实连接串后 **Redeploy**。
+
+   部署后若页面提示加载失败，在浏览器打开 `https://你的域名/api/health` 查看数据库是否连通。
 
 6. 部署。构建命令使用 `npm run vercel-build`（已写在 `vercel.json`），会自动执行 `prisma migrate deploy` 与 `nest build`。
 
